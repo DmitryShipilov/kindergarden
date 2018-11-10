@@ -68,7 +68,7 @@ namespace kindergarden
             dataGridView.Columns[6].HeaderText = "Группа";
             dataGridView.Columns[7].HeaderText = "Число посещений";
             dataGridView.Columns[8].HeaderText = "Статус оплаты";
-            dataGridView.Columns[9].HeaderText = "Задолжность";
+            dataGridView.Columns[9].HeaderText = "Задолженность";
 
             //reset filters
             /*comboBoxFilterName.SelectedItem = null;
@@ -158,9 +158,10 @@ namespace kindergarden
                             NpgsqlCommand command = new NpgsqlCommand(query, connection);
                             command.ExecuteNonQuery();
                             connection.Close();
+                            this.considerPay();
                             this.showAll_Click(sender, e);
 
-                            MessageBox.Show("Количество дней установлено");
+                            MessageBox.Show("Количество дней и сумма задолженности установлены","Успешно");
                         }
                     }
                     else
@@ -343,6 +344,8 @@ namespace kindergarden
             NpgsqlCommand command = new NpgsqlCommand(query, connection);
             command.ExecuteNonQuery();
             connection.Close();
-                    }
+        }
+
+
     }
 }

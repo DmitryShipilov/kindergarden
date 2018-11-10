@@ -1,0 +1,16 @@
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\bin\Release\kindergarden.exe.config
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\bin\Release\kindergarden.exe
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\bin\Release\kindergarden.pdb
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\bin\Release\Npgsql.dll
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\bin\Release\System.Threading.Tasks.Extensions.dll
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\bin\Release\Npgsql.pdb
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\bin\Release\Npgsql.xml
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\obj\Release\kindergarden.csprojResolveAssemblyReference.cache
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\obj\Release\kindergarden.addForm.resources
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\obj\Release\kindergarden.inForm.resources
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\obj\Release\kindergarden.Properties.Resources.resources
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\obj\Release\kindergarden.showListForm.resources
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\obj\Release\kindergarden.csproj.GenerateResource.Cache
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\obj\Release\kindergarden.csproj.CoreCompileInputs.cache
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\obj\Release\kindergarden.exe
+D:\MAI\Maksimov_7sem\Course\program\kindergarden\kindergarden\obj\Release\kindergarden.pdb
