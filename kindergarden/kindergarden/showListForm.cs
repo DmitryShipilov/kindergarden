@@ -13,6 +13,22 @@ namespace kindergarden
 {
     public partial class showListForm : Form
     {
+        // column numbers
+        const int u_id = 0;
+        const int surname = 1;
+        const int name = 2;
+        const int patr = 3;
+        const int group = 4;
+        const int attendance = 5;
+        const int payStatus = 6;
+        const int debit = 7;
+        const int street = 8;
+        const int building = 9;
+        const int flat = 10;
+        const int date = 11;
+        const int parentPhone = 12;
+
+
         public showListForm()
         {
             InitializeComponent();
@@ -39,12 +55,15 @@ namespace kindergarden
         {
             dt.Clear() ;
             string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=1415; Database=kindergarden;";
-            string query = " select u_id, surname.f_val, name.f_val, patronymic.f_val, street.f_val, telephone.f_val, " +
-                           " grup, visit, pay, debt from main " +
+            string query = " select u_id, surname.f_val, name.f_val, patronymic.f_val, grup, visit,pay, debt,  " +
+                           " street.f_val, building.f_val, flat.f_val, date.f_val, telephone.f_val from main " +
                            " inner join surname on main.surname = surname.f_id " +
                            " inner join name on main.name = name.f_id " +
                            " inner join street on main.street = street.f_id " +
-                           " inner join patronymic on main.patronymic = patronymic.f_id" +
+                           " inner join patronymic on main.patronymic = patronymic.f_id " +
+                           " inner join building on main.building = building.f_id " +
+                           " inner join flat on main.flat = flat.f_id " +
+                           " inner join date on main.date = date.f_id " +
                            " inner join telephone on main.telephone = telephone.f_id; ";
             NpgsqlConnection connection = new NpgsqlConnection(connstring);
             connection.Open();
@@ -54,21 +73,24 @@ namespace kindergarden
 
             dt.Load(npgSqlDataReader);
             dataGridView.DataSource = dt;
-            dataGridView.Sort(dataGridView.Columns[0], System.ComponentModel.ListSortDirection.Ascending);
+            dataGridView.Sort(dataGridView.Columns[u_id], System.ComponentModel.ListSortDirection.Ascending);
 
             connection.Close();
 
             // column names
-            dataGridView.Columns[0].HeaderText = "Номер";
-            dataGridView.Columns[1].HeaderText = "Фамилия";
-            dataGridView.Columns[2].HeaderText = "Имя";
-            dataGridView.Columns[3].HeaderText = "Отчество";
-            dataGridView.Columns[4].HeaderText = "Улица";
-            dataGridView.Columns[5].HeaderText = "Номер родителей";
-            dataGridView.Columns[6].HeaderText = "Группа";
-            dataGridView.Columns[7].HeaderText = "Число посещений";
-            dataGridView.Columns[8].HeaderText = "Статус оплаты";
-            dataGridView.Columns[9].HeaderText = "Задолженность";
+            dataGridView.Columns[u_id].HeaderText = "Номер";
+            dataGridView.Columns[surname].HeaderText = "Фамилия";
+            dataGridView.Columns[name].HeaderText = "Имя";
+            dataGridView.Columns[patr].HeaderText = "Отчество";
+            dataGridView.Columns[group].HeaderText = "Группа";
+            dataGridView.Columns[attendance].HeaderText = "Количество посещений";
+            dataGridView.Columns[payStatus].HeaderText = "Статус оплаты";
+            dataGridView.Columns[debit].HeaderText = "Задолженность";
+            dataGridView.Columns[street].HeaderText = "Улица";
+            dataGridView.Columns[building].HeaderText = "Дом";
+            dataGridView.Columns[flat].HeaderText = "Квартира";
+            dataGridView.Columns[date].HeaderText = "Дата рождения";
+            dataGridView.Columns[parentPhone].HeaderText = "Телефон родителей";
 
             //reset filters
             /*comboBoxFilterName.SelectedItem = null;
@@ -86,17 +108,28 @@ namespace kindergarden
                 
                 int x = dataGridView.CurrentCell.RowIndex;
 
-                if (dataGridView[7, x].Value.ToString() != "")
+                if (dataGridView[attendance, x].Value.ToString() != "")
                 {
-                    string id = (dataGridView[0, x].Value.ToString());
+                    string id = (dataGridView[u_id, x].Value.ToString());
                     string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=1415; Database=kindergarden;";
-                    string query = "update main set pay = 'Оплачено' where u_id = " + id + ";";
-                    query += string.Format(" update main set debt = 0 where u_id = {0};", id);
+                    string query = "";
 
-                    if (dataGridView[8, x].Value.ToString().Replace(" ","") == "Оплачено")
+                    if (dataGridView[payStatus, x].Value.ToString().Replace(" ", "") == "Оплачено")
                     {
-                        query = "update main set pay = 'Не оплачено' where u_id = " + id;
+                        query = string.Format("update main set pay = 'Не оплачено' where u_id = {0};", id); 
+                        string inCount =  dataGridView[attendance, x].Value.ToString();
+                        int sum = 500 * Int32.Parse(inCount);
+                        query += string.Format("update main set debt = '{0}' where u_id = {1};",sum, id);
+                        //this.considerPay(x);
+                        this.showAll_Click(sender, e);
                     }
+                    else
+                    {
+
+                        query = "update main set pay = 'Оплачено' where u_id = " + id + ";";
+                        query += string.Format(" update main set debt = 0 where u_id = {0};", id);
+                    }
+
 
 
                     NpgsqlConnection connection = new NpgsqlConnection(connstring);
@@ -104,18 +137,24 @@ namespace kindergarden
 
 
                     NpgsqlCommand command = new NpgsqlCommand(query, connection);
+
                     command.ExecuteNonQuery();
+
+
                     connection.Close();
-                    this.showAll_Click(sender, e);
-                    this.considerPay();
-                    this.showAll_Click(sender, e);
+
                     MessageBox.Show("Статус оплаты изменен");
+
+
+                    this.showAll_Click(sender, e);
+
                 }
 
                 else
                 {
                     MessageBox.Show("Не установлено число посещений", "Ошибка");
                 }
+
 
             }
             catch (Exception ex)
@@ -129,24 +168,28 @@ namespace kindergarden
         {
             try
             {
-                int visitColumn = 7; //номер столбца посещений
-                if (dataGridView.CurrentCell.ColumnIndex == visitColumn)
-                {
+                Console.WriteLine("try");
 
+                if (dataGridView.CurrentCell.ColumnIndex == attendance)
+                {
+                    Console.WriteLine("if 1");
 
                     if (dataGridView.CurrentCell.Value.ToString().Replace(" ", "") != "")
                     {
+                        Console.WriteLine("if 2");
                         int x = dataGridView.CurrentCell.RowIndex;
                         string val = dataGridView.CurrentCell.Value.ToString().Replace(" ", "");
                         if ((Int32.Parse(val) > 31) || (Int32.Parse(val) < 0))
                         {
+                            Console.WriteLine("if 3");
                             MessageBox.Show("Некорректное число дней");
                             this.showAll_Click(sender, e);
                         }
 
                         else
                         {
-                            string id = (dataGridView[0, x].Value.ToString());
+                            Console.WriteLine("else 1 begin");
+                            string id = (dataGridView[u_id, x].Value.ToString());
                             string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=1415; Database=kindergarden;";
                             string query = string.Format("update main set visit = '{0}' where u_id = {1} ", val, id);
 
@@ -156,16 +199,22 @@ namespace kindergarden
 
 
                             NpgsqlCommand command = new NpgsqlCommand(query, connection);
+                            Console.WriteLine("before execute");
                             command.ExecuteNonQuery();
+                            Console.WriteLine("after execute");
+                            considerPay(dataGridView.CurrentCell.RowIndex);
+                            Console.WriteLine("after conspay");
                             connection.Close();
-                            this.considerPay();
-                            this.showAll_Click(sender, e);
+                            Console.WriteLine("after close");
 
                             MessageBox.Show("Количество дней и сумма задолженности установлены","Успешно");
+                            Console.WriteLine("else 1 end");
+                            this.showAll_Click(sender, e);
                         }
                     }
                     else
                     {
+                        Console.WriteLine("else 2");
                         MessageBox.Show("Количество дней не установлено");
                     }
                 }
@@ -191,17 +240,17 @@ namespace kindergarden
                     for (int i = 0; i < dataGridView.RowCount-1; i++)
                     {
 
-                        if (dataGridView[8, i].Value.ToString().Replace(" ", "") == "Неоплачено")
+                        if (dataGridView[payStatus, i].Value.ToString().Replace(" ", "") == "Неоплачено")
                         {
 
-                            string visit_val = dataGridView[7, i].Value.ToString();
+                            string visit_val = dataGridView[attendance, i].Value.ToString();
                             int numDays = Int32.Parse(visit_val);
                             int payPerDay = 500;
                             int debt = payPerDay * numDays;
 
 
 
-                            string id = dataGridView[0, i].Value.ToString();
+                            string id = dataGridView[u_id, i].Value.ToString();
 
 
                             query += string.Format("update main set debt = {0} where u_id = ({1}); ", debt, id);
@@ -228,17 +277,13 @@ namespace kindergarden
         {
 
 
-            if (dataGridView.CurrentCellAddress.Y.Equals(null))
 
-                MessageBox.Show("Nothing picked", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else
-            {
                 try
                 {
                     int x = dataGridView.CurrentCell.RowIndex;
 
                     string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=1415; Database=kindergarden;";
-                    string query = String.Format("DELETE from main where u_id = {0}", dataGridView[0, x].Value.ToString());
+                    string query = String.Format("DELETE from main where u_id = {0}", dataGridView[u_id, x].Value.ToString());
 
                     NpgsqlConnection connection = new NpgsqlConnection(connstring);
                     connection.Open();
@@ -246,6 +291,8 @@ namespace kindergarden
                     NpgsqlCommand command = new NpgsqlCommand(query, connection);
                     command.ExecuteNonQuery();
                     connection.Close();
+                    
+                    MessageBox.Show(string.Format("{0} успешно удален", dataGridView[surname, x].Value.ToString()), "Данные удалены");
                     this.showAll_Click(sender, e);
                 }
                 catch (Exception ex)
@@ -253,7 +300,7 @@ namespace kindergarden
                     MessageBox.Show("Nothing picked", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-            }
+            
 
         }
 
@@ -313,30 +360,30 @@ namespace kindergarden
             connection.Close();
         }
 
-        private void considerPay()
+        private void considerPay(int curRow)
         {
             string query = "";
 
-            for (int i = 0; i < dataGridView.RowCount - 1; i++)
-            {
+           // for (int i = 0; i < dataGridView.RowCount - 1; i++)
+           // {
 
-                if (dataGridView[8, i].Value.ToString().Replace(" ", "") == "Неоплачено")
+                if (dataGridView[payStatus, curRow].Value.ToString().Replace(" ", "") == "Неоплачено")
                 {
 
-                    string visit_val = dataGridView[7, i].Value.ToString();
+                    string visit_val = dataGridView[attendance, curRow].Value.ToString();
                     int numDays = Int32.Parse(visit_val);
                     int payPerDay = 500;
                     int debt = payPerDay * numDays;
 
 
 
-                    string id = dataGridView[0, i].Value.ToString();
+                    string id = dataGridView[u_id, curRow].Value.ToString();
 
 
                     query += string.Format("update main set debt = {0} where u_id = ({1}); ", debt, id);
                     Console.WriteLine(query);
                 }
-            }
+            //}
 
             string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=1415; Database=kindergarden;";
             NpgsqlConnection connection = new NpgsqlConnection(connstring);

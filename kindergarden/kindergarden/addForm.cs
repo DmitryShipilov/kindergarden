@@ -52,7 +52,7 @@ namespace kindergarden
             if ((surnameTB.Text == "") || (nameTB.Text == "") || (patrTB.Text == "") || (telephoneTB.Text == "") || (streetTB.Text == "")
                 || (buildTB.Text == "") || (flatTB.Text == ""))
             {
-                MessageBox.Show("Заполнены не все поля", "phonebook", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Заполнены не все поля", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else
             {
