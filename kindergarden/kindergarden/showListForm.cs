@@ -37,6 +37,7 @@ namespace kindergarden
         List<string> ColumnVals = new List<string>();
         List<string> ColumnIndex = new List<string>();
         DataTable dt = new DataTable();
+        DataTable dt_filter = new DataTable();
         private void showListForm_Load(object sender, EventArgs e)
         {
             this.comboShow("street");
@@ -330,8 +331,8 @@ namespace kindergarden
 
         private void Filter_Click(object sender, EventArgs e)
         {
-            
-            dt.Clear();
+
+            dt_filter.Clear();
             string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=1415; Database=kindergarden;";
             string query = " select u_id, surname.f_val, name.f_val, patronymic.f_val, street.f_val, telephone.f_val, " +
                            " grup, visit, pay from main " +
@@ -344,7 +345,7 @@ namespace kindergarden
 
             if (comboBoxFilterStreet.SelectedItem != null)
             {
-                query += string.Format("AND street.f_val = '{0}'", comboBoxFilterStreet.SelectedItem.ToString());
+                query += string.Format("AND street.f_val = '{0}';", comboBoxFilterStreet.SelectedItem.ToString());
             }
 
 
@@ -354,9 +355,9 @@ namespace kindergarden
             NpgsqlCommand npgSqlCommand = new NpgsqlCommand(query, connection);
             NpgsqlDataReader npgSqlDataReader = npgSqlCommand.ExecuteReader();
 
-            dt.Load(npgSqlDataReader);
-            dataGridView.DataSource = dt;
-            dataGridView.Sort(dataGridView.Columns[0], System.ComponentModel.ListSortDirection.Ascending);
+            dt_filter.Load(npgSqlDataReader);
+            dataGridView.DataSource = dt_filter;
+            dataGridView.Sort(dataGridView.Columns[u_id], System.ComponentModel.ListSortDirection.Ascending);
             connection.Close();
         }
 
