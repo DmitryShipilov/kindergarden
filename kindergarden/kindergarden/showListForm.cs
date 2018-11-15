@@ -144,10 +144,12 @@ namespace kindergarden
 
                     connection.Close();
 
-                    MessageBox.Show("Статус оплаты изменен");
+                    //MessageBox.Show("Статус оплаты изменен");
 
 
                     this.showAll_Click(sender, e);
+                    MessageBox.Show(string.Format("У ребенка с фамилией {0} изменен статус оплаты на «{1}»", dataGridView[surname, dataGridView.CurrentCell.RowIndex].Value.ToString().Replace(" ", ""), dataGridView[payStatus, x].Value.ToString().Replace(" ","")), "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
 
                 }
 
@@ -169,30 +171,27 @@ namespace kindergarden
         {
             try
             {
-                Console.WriteLine("try");
 
                 if (dataGridView.CurrentCell.ColumnIndex == attendance)
                 {
-                    Console.WriteLine("if 1");
 
                     if (dataGridView.CurrentCell.Value.ToString().Replace(" ", "") != "")
                     {
-                        Console.WriteLine("if 2");
                         int x = dataGridView.CurrentCell.RowIndex;
                         string val = dataGridView.CurrentCell.Value.ToString().Replace(" ", "");
                         if ((Int32.Parse(val) > 31) || (Int32.Parse(val) < 0))
                         {
-                            Console.WriteLine("if 3");
                             MessageBox.Show("Некорректное число дней");
                             this.showAll_Click(sender, e);
                         }
 
                         else
                         {
-                            Console.WriteLine("else 1 begin");
                             string id = (dataGridView[u_id, x].Value.ToString());
                             string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=1415; Database=kindergarden;";
                             string query = string.Format("update main set visit = '{0}' where u_id = {1} ", val, id);
+
+                            MessageBox.Show(string.Format("Ребенку с фамилией {0} установлено количество посещений, равное {1}", dataGridView[surname, dataGridView.CurrentCell.RowIndex].Value.ToString().Replace(" ",""), dataGridView[attendance, dataGridView.CurrentCell.RowIndex].Value.ToString()), "Успешно", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
 
                             NpgsqlConnection connection = new NpgsqlConnection(connstring);
@@ -200,28 +199,22 @@ namespace kindergarden
 
 
                             NpgsqlCommand command = new NpgsqlCommand(query, connection);
-                            Console.WriteLine("before execute");
                             command.ExecuteNonQuery();
-                            Console.WriteLine("after execute");
                             considerPay(dataGridView.CurrentCell.RowIndex);
-                            Console.WriteLine("after conspay");
                             connection.Close();
-                            Console.WriteLine("after close");
 
-                            MessageBox.Show("Количество дней и сумма задолженности установлены","Успешно");
-                            Console.WriteLine("else 1 end");
+                            
                             this.showAll_Click(sender, e);
                         }
                     }
                     else
                     {
-                        Console.WriteLine("else 2");
                         MessageBox.Show("Количество дней не установлено");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Выбран неверный столбец");
+                    MessageBox.Show("Выбран неверный столбец", "Внимание!", MessageBoxButtons.OK,MessageBoxIcon.Warning);
                 }
 
 
@@ -279,7 +272,11 @@ namespace kindergarden
 
 
 
-                try
+            try
+            {
+                DialogResult dialogResult = MessageBox.Show(string.Format("Вы уверены, что хотите удалить ребенка с фамилией {0} ?", dataGridView[surname, dataGridView.CurrentCell.RowIndex].Value.ToString().Replace(" ","")), "Внимание!", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (dialogResult == DialogResult.Yes)
                 {
                     int x = dataGridView.CurrentCell.RowIndex;
 
@@ -292,14 +289,18 @@ namespace kindergarden
                     NpgsqlCommand command = new NpgsqlCommand(query, connection);
                     command.ExecuteNonQuery();
                     connection.Close();
-                    
-                    MessageBox.Show(string.Format("{0} успешно удален", dataGridView[surname, x].Value.ToString()), "Данные удалены");
+
                     this.showAll_Click(sender, e);
+                    MessageBox.Show(string.Format("{0} успешно удален", dataGridView[surname, x].Value.ToString().Replace(" ", "")), "Данные удалены");
+
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Nothing picked", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+            }
+
+
+            catch (Exception ex)
+            {
+                MessageBox.Show("Nothing picked", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             
 
@@ -334,13 +335,16 @@ namespace kindergarden
 
             dt_filter.Clear();
             string connstring = "Server=localhost; Port=5432; User Id=postgres; Password=1415; Database=kindergarden;";
-            string query = " select u_id, surname.f_val, name.f_val, patronymic.f_val, street.f_val, telephone.f_val, " +
-                           " grup, visit, pay from main " +
+            string query = " select u_id, surname.f_val, name.f_val, patronymic.f_val, grup, visit,pay, debt,  " +
+                           " street.f_val, building.f_val, flat.f_val, date.f_val, telephone.f_val from main " +
                            " inner join surname on main.surname = surname.f_id " +
                            " inner join name on main.name = name.f_id " +
                            " inner join street on main.street = street.f_id " +
-                           " inner join patronymic on main.patronymic = patronymic.f_id" +
-                           " inner join telephone on main.telephone = telephone.f_id" +
+                           " inner join patronymic on main.patronymic = patronymic.f_id " +
+                           " inner join building on main.building = building.f_id " +
+                           " inner join flat on main.flat = flat.f_id " +
+                           " inner join date on main.date = date.f_id " +
+                           " inner join telephone on main.telephone = telephone.f_id "+
                            " where 1 = 1 ";
 
             if (comboBoxFilterStreet.SelectedItem != null)
@@ -358,6 +362,7 @@ namespace kindergarden
             dt_filter.Load(npgSqlDataReader);
             dataGridView.DataSource = dt_filter;
             dataGridView.Sort(dataGridView.Columns[u_id], System.ComponentModel.ListSortDirection.Ascending);
+
             connection.Close();
         }
 
